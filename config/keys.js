@@ -1,4 +1,4 @@
 module.exports = {
-    mongoURI: 'mongodb://127.0.0.1:27017/image_up',
+    mongoURI: 'mongodb+srv://hackingisanart:0IfugECXZd1Lkm4k@cluster0.qmweff0.mongodb.net/?retryWrites=true&w=majority',
     secretOrKey: 'your-secret-or-key'
 };
