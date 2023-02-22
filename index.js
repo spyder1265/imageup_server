@@ -10,7 +10,7 @@ const {ObjectId} = require("mongodb");
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const hostname = '0.0.0.0';
+
 const port = 4000;
 
 const app = express();
@@ -270,6 +270,6 @@ app.delete('/images/:filename', (req, res) => {
 
 
 
-app.listen(port,hostname ,() => {
+app.listen(port,() => {
     console.log("Server is running on port 4000");
 });
