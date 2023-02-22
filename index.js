@@ -11,8 +11,6 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-const port = 4000;
-
 const app = express();
 app.use('/public', express.static('public'));
 const upload = multer({ dest: 'uploads/' });
@@ -270,6 +268,6 @@ app.delete('/images/:filename', (req, res) => {
 
 
 
-app.listen(port,() => {
+app.listen( 4000,() => {
     console.log("Server is running on port 4000");
 });
