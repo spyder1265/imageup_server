@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const keys = require('./config/keys');
 const User = require('./models/User');
-const {ObjectId} = require("mongodb");
+const ObjectId = mongoose.Types.ObjectId;
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -25,7 +25,7 @@ mongoose.connect(keys.mongoURI, { useNewUrlParser: true, useUnifiedTopology: tru
 const db = mongoose.connection;
 
 db.on('connected', function() {
-    console.log('Mongoose connected to ' + keys.mongoURI);
+    console.log('Mongoose connected to mongodb');
 });
 
 db.on('error', function(err) {
