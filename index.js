@@ -203,7 +203,7 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
                 return res.status(500).send("Error storing the image");
             }
         });
-        res.send({ success: true, fileUrl: `http://localhost:3000/${fileName}` });
+        res.send({ success: true, fileUrl: `https://imageup-client.vercel.app/${fileName}` });
     });
 });
 
@@ -213,7 +213,7 @@ function readImages(imageFiles) {
     const images = [];
     imageFiles.forEach((file) => {
         try {
-            const imageUrl = `http://localhost:4000/public/${file}`;
+            const imageUrl = `https://imageup.onrender.com/public/${file}`;
             images.push({ url: imageUrl, name: file });
         } catch (e) {
             console.log(e);
