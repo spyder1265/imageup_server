@@ -399,21 +399,19 @@ app.post('/verify-code', async (req, res) => {
     try {
         let collection = db.collection("ResetPasswordRequests");
         const code = req.body.code;
-        console.log(code);
+
         const coderes = await collection.findOne({code:code},{token:1});
-        console.log(coderes)
+
         if (!coderes) {
             return res.status(404).json({message: 'incorrect code'});
-        }else{
-            console.log(coderes + "found")
         }
 
         const userId = coderes.for;
 
-        console.log(userId);
+
 
         const user = await User.findById(userId).select("-password");
-        console.log(user._id.toString());
+
 
         res.json({
             userId: user._id.toString(),
@@ -432,9 +430,9 @@ app.post('/set-password', async (req, res) => {
         const salt = await bcrypt.genSalt();
         const hash = await bcrypt.hash(password, salt);
         await User.findOneAndUpdate({ username }, { password: hash });
-        res.json({ message: 'Password updated' });
         let collection = db.collection("ResetPasswordRequests");
         await collection.deleteOne({for : userId},{token:1});
+        res.json({ message: 'Password updated' });
     } catch (err) {
         console.log(err);
         res.status(500).json({ message: 'Internal server error' });
