@@ -301,7 +301,7 @@ app.post('/reset-password', async (req, res) => {
                 pass: EMAIL_PASS
             }
         });
-        const randomString = generateRandomString();
+        const randomString = generateRandomString().toUpperCase();
         const name = user.name;
         const mailOptions = {
             from: EMAIL_FROM,
