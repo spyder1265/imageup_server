@@ -272,6 +272,17 @@ app.delete('/images/:filename', (req, res) => {
 
 //reset password routes
 
+function generateRandomString() {
+    let result = '';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    for (let i = 0; i < 4; i++) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
+
 // First page: accept username
 app.post('/reset-password', async (req, res) => {
     try {
@@ -290,6 +301,8 @@ app.post('/reset-password', async (req, res) => {
                 pass: EMAIL_PASS
             }
         });
+        const randomString = generateRandomString();
+        const name = user.name;
         const mailOptions = {
             from: EMAIL_FROM,
             to: user.email,
@@ -342,17 +355,14 @@ app.post('/reset-password', async (req, res) => {
                                 text-align: center;
                                 text-decoration: none;
                             }
-                            .button:hover {
-                                background-color: #2D3748;
-                            }
                         </style>
                     </head>
                     <body>
                         <h1>Imageup</h1>
-                        <p>Dear <script></script>,</p>
+                        <p>Dear ${name},</p>
                         <p>Here is your one time verification code:</p>
                         <br/>
-                        <strong>${token}</strong>
+                        <strong>${randomString}</strong>
                         <br/>
                         <p>note this code will expire after 10 muinites</p>
                         <p>Thank you for choosing Imageup!</p>
@@ -364,7 +374,9 @@ app.post('/reset-password', async (req, res) => {
         };
 
         collection.insertOne({
+            for:user._id,
             username : username,
+            code:randomString,
             token:token,
             timestamp: new Date()
         }, (err) => {
