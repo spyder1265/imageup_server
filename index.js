@@ -410,10 +410,13 @@ app.post('/verify-code', async (req, res) => {
 
         const userId = coderes.for;
 
-        const user = await User.findOne({userId});
+        console.log(userId);
+
+        const user = await User.findById(userId).select("-password");
+        console.log(user._id.toString());
 
         res.json({
-            userId: user._id,
+            userId: user._id.toString(),
         });
 
     } catch (err) {
