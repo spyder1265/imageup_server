@@ -45,10 +45,10 @@ process.on('SIGINT', function() {
 });
 
 
-const JWT_SECRET = 'your_jwt_secret';
-const EMAIL_USER = 'your_email_user';
-const EMAIL_PASS = 'your_email_pass';
-const EMAIL_FROM = 'your_email_from';
+const JWT_SECRET = '@YesterdayIWentToTheBeach';
+const EMAIL_USER = 'titusabeiku05@gmail.com';
+const EMAIL_PASS = 'ajhbuluzkdyfdoak';
+const EMAIL_FROM = 'Imageup.com';
 
 
 
@@ -280,6 +280,8 @@ app.post('/reset-password', async (req, res) => {
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        const collection = db.collection("ResetPasswordRequests");
+
         const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '10m' });
         const transporter = nodemailer.createTransport({
             service: 'gmail',
@@ -292,8 +294,86 @@ app.post('/reset-password', async (req, res) => {
             from: EMAIL_FROM,
             to: user.email,
             subject: 'Reset Password',
-            text: `Your verification code is ${token}`
+            html: ` <!DOCTYPE html>
+                    <html lang="en-us">
+                    <head>
+                        <title>Imageup Email Template</title>
+                        <style>
+                            body {
+                                background-color: #CBD5E0;
+                                color: #1A202C;
+                                font-family: Arial, sans-serif;
+                                font-size: 16px;
+                                line-height: 1.5;
+                                padding: 20px;
+                            }
+                            h1, h2, h3, h4, h5, h6 {
+                                color: #1A202C;
+                                font-family: Arial, sans-serif;
+                                font-weight: bold;
+                                line-height: 1.2;
+                                margin-bottom: 10px;
+                                margin-top: 0;
+                            }
+                            p {
+                                margin-bottom: 20px;
+                                margin-top: 0;
+                            }
+                            a {
+                                color: #3182CE;
+                                text-decoration: none;
+                            }
+                            a:hover {
+                                color: #2C5282;
+                            }
+                            .button {
+                                background-color: #4A5568;
+                                border: none;
+                                border-radius: 5px;
+                                color: #FFFFFF;
+                                cursor: pointer;
+                                display: inline-block;
+                                font-family: Arial, sans-serif;
+                                font-size: 16px;
+                                font-weight: bold;
+                                line-height: 1;
+                                margin: 0;
+                                padding: 10px 20px;
+                                text-align: center;
+                                text-decoration: none;
+                            }
+                            .button:hover {
+                                background-color: #2D3748;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>Imageup</h1>
+                        <p>Dear <script></script>,</p>
+                        <p>Here is your one time verification code:</p>
+                        <br/>
+                        <strong>${token}</strong>
+                        <br/>
+                        <p>note this code will expire after 10 muinites</p>
+                        <p>Thank you for choosing Imageup!</p>
+                        <p>Sincerely,</p>
+                        <p>Imageup</p>
+                        <a href="https://imageup-client.vercel.app" class="button">Visit Imageup</a>
+                    </body>
+                    </html>`
         };
+
+        collection.insertOne({
+            username : username,
+            token:token,
+            timestamp: new Date()
+        }, (err) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).send("Error storing Request");
+            }
+        });
+
         await transporter.sendMail(mailOptions);
         res.json({ message: 'Verification code sent' });
     } catch (err) {
