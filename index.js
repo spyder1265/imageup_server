@@ -362,7 +362,7 @@ app.post('/reset-password', async (req, res) => {
                         <p>Dear ${name},</p>
                         <p>Here is your one time verification code:</p>
                         <br/>
-                        <strong>${randomString}</strong>
+                        <h1><strong>${randomString}</strong></h1>
                         <br/>
                         <p>note this code will expire after 10 muinites</p>
                         <p>Thank you for choosing Imageup!</p>
@@ -395,14 +395,26 @@ app.post('/reset-password', async (req, res) => {
 });
 
 // Second page: ask for verification code
-app.post('/verify-code', (req, res) => {
+app.post('/verify-code', async (req, res) => {
     try {
-        const { code } = req.body;
-        const { username } = jwt.verify(code, JWT_SECRET);
-        res.json({ username });
+        let collection = db.collection("ResetPasswordRequests");
+        const {code} = req.body;
+        const coderes = await collection.findOne({code});
+        if (!coderes) {
+            return res.status(404).json({message: 'incorrect code'});
+        }
+
+        const userId = coderes.for;
+
+        const user = await User.findOne({userId});
+
+        res.json({
+            userId: user._id,
+        });
+
     } catch (err) {
         console.log(err);
-        res.status(401).json({ message: 'Invalid verification code' });
+        res.status(401).json({message: 'Invalid verification code'});
     }
 });
 
