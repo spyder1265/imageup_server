@@ -428,11 +428,13 @@ app.post('/verify-code', async (req, res) => {
 // Third page: set new password
 app.post('/set-password', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const {userId, username, password } = req.body;
         const salt = await bcrypt.genSalt();
         const hash = await bcrypt.hash(password, salt);
         await User.findOneAndUpdate({ username }, { password: hash });
         res.json({ message: 'Password updated' });
+        let collection = db.collection("ResetPasswordRequests");
+        await collection.deleteOne({for : userId},{token:1});
     } catch (err) {
         console.log(err);
         res.status(500).json({ message: 'Internal server error' });
