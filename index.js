@@ -10,6 +10,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const nodemailer = require('nodemailer');
 
 const app = express();
 app.use('/public', express.static('public'));
@@ -42,6 +43,12 @@ process.on('SIGINT', function() {
         process.exit(0);
     });
 });
+
+
+const JWT_SECRET = 'your_jwt_secret';
+const EMAIL_USER = 'your_email_user';
+const EMAIL_PASS = 'your_email_pass';
+const EMAIL_FROM = 'your_email_from';
 
 
 
@@ -230,7 +237,6 @@ app.get('/images/:id', (req, res) => {
         if (err) throw err;
 
         const names = docs.map(doc => doc.name);
-        // console.log(names);
 
         const images = readImages(names);
         res.setHeader('Access-Control-Allow-Origin', '*');
@@ -238,7 +244,6 @@ app.get('/images/:id', (req, res) => {
         res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
         res.setHeader('Content-Type', 'application/json');
         res.json(images);
-        // prints an array of all the names where from = 123
     });
 
 });
@@ -248,9 +253,7 @@ app.delete('/images/:filename', (req, res) => {
     const path = `public/${filename}`;
     const collection = db.collection("images");
 
-    // Check if file exists
     if (fs.existsSync(path)) {
-        // Delete file
         fs.unlinkSync(path);
         console.log(`${filename} deleted successfully.`);
         collection.deleteOne({name : `${filename}`}, (err) => {
@@ -266,6 +269,70 @@ app.delete('/images/:filename', (req, res) => {
     }
 });
 
+
+//reset password routes
+
+// First page: accept username
+app.post('/reset-password', async (req, res) => {
+    try {
+        const { username } = req.body;
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '10m' });
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: EMAIL_USER,
+                pass: EMAIL_PASS
+            }
+        });
+        const mailOptions = {
+            from: EMAIL_FROM,
+            to: user.email,
+            subject: 'Reset Password',
+            text: `Your verification code is ${token}`
+        };
+        await transporter.sendMail(mailOptions);
+        res.json({ message: 'Verification code sent' });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Second page: ask for verification code
+app.post('/verify-code', (req, res) => {
+    try {
+        const { code } = req.body;
+        const { username } = jwt.verify(code, JWT_SECRET);
+        res.json({ username });
+    } catch (err) {
+        console.log(err);
+        res.status(401).json({ message: 'Invalid verification code' });
+    }
+});
+
+// Third page: set new password
+app.post('/set-password', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const salt = await bcrypt.genSalt();
+        const hash = await bcrypt.hash(password, salt);
+        await User.findOneAndUpdate({ username }, { password: hash });
+        res.json({ message: 'Password updated' });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+
+
+
+
+//end of reset password routes
 
 
 app.listen( 4000,() => {
