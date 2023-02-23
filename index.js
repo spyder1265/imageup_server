@@ -398,8 +398,8 @@ app.post('/reset-password', async (req, res) => {
 app.post('/verify-code', async (req, res) => {
     try {
         let collection = db.collection("ResetPasswordRequests");
-        const {code} = req.body;
-        const coderes = await collection.findOne({code});
+        const {code} = req.body.code;
+        const coderes = await collection.findOne({code:code},{token:1});
         if (!coderes) {
             return res.status(404).json({message: 'incorrect code'});
         }
