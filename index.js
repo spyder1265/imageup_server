@@ -374,7 +374,7 @@ app.post('/reset-password', async (req, res) => {
         };
 
         collection.insertOne({
-            for:user._id,
+            for:user._id.toString(),
             username : username,
             code:randomString,
             token:token,
