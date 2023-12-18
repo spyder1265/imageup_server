@@ -232,7 +232,7 @@ function readImages(imageFiles) {
   const images = [];
   imageFiles.forEach((file) => {
     try {
-      const imageUrl = `https://imageup.onrender.com/public/${file}`;
+      const imageUrl = `http://54.185.56.193:4000/public/${file}`;
       images.push({ url: imageUrl, name: file });
     } catch (e) {
       console.log(e);
